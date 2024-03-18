@@ -1,0 +1,1602 @@
+Program.Sub.ScreenSU.Start
+Gui.frmTrans..Create
+Gui.frmTrans..Caption("Inventory Part, Router & BOM Archive")
+Gui.frmTrans..Size(6360,2745)
+Gui.frmTrans..MinX(6360)
+Gui.frmTrans..MinY(2715)
+Gui.frmTrans..Position(0,0)
+Gui.frmTrans..BackColor(-2147483633)
+Gui.frmTrans..MaxButton(False)
+Gui.frmTrans..MousePointer(0)
+Gui.frmTrans..Event(UnLoad,frmTrans_UnLoad)
+Gui.frmTrans.picGSSLogo.Create(PictureBox)
+Gui.frmTrans.picGSSLogo.Size(4125,960)
+Gui.frmTrans.picGSSLogo.Position(1980,45)
+Gui.frmTrans.lblFrom.Create(Label,"From:",True,645,255,0,195,165,True,0,"Arial",10,-2147483633,0)
+Gui.frmTrans.lblCCC.Create(Label,"CoCode",True,825,255,0,780,165,True,0,"Arial",10,-2147483633,0)
+Gui.frmTrans.lblTo.Create(Label,"To:",True,420,255,0,435,510,True,1,"Arial",10,-2147483633,0)
+Gui.frmTrans.ddlTo.Create(DropDownList)
+Gui.frmTrans.ddlTo.Size(705,330)
+Gui.frmTrans.ddlTo.Position(840,420)
+Gui.frmTrans.ddlTo.Event(Change,ddlTo_Change)
+Gui.frmTrans.frameInv.Create(Frame)
+Gui.frmTrans.frameInv.Size(5910,780)
+Gui.frmTrans.frameInv.Position(195,1110)
+Gui.frmTrans.frameInv.Caption("Inventory Part, Router and BOM Archive")
+Gui.frmTrans.cmdFileBrw.Create(Button)
+Gui.frmTrans.cmdFileBrw.Size(375,375)
+Gui.frmTrans.cmdFileBrw.Position(5460,345)
+Gui.frmTrans.cmdFileBrw.Parent("frameInv")
+Gui.frmTrans.cmdFileBrw.Caption("^")
+Gui.frmTrans.cmdFileBrw.Event(Click,cmdFileBrw_Click)
+Gui.frmTrans.txtFP.Create(TextBox,"",True,5280,300,0,120,390,True,0,"Arial",8,-2147483643,1)
+Gui.frmTrans.txtFP.Parent("frameInv")
+Gui.frmTrans.txtFP.Event(Change,txtFP_Change)
+Gui.frmTrans.cmdRun.Create(Button)
+Gui.frmTrans.cmdRun.Size(855,375)
+Gui.frmTrans.cmdRun.Position(210,1965)
+Gui.frmTrans.cmdRun.Caption("Run")
+Gui.frmTrans.cmdRun.Event(Click,cmdRun_Click)
+Gui.frmTrans.cmdRun.Enabled(False)
+Gui.frmTrans.cmdClear.Create(Button)
+Gui.frmTrans.cmdClear.Size(855,375)
+Gui.frmTrans.cmdClear.Position(1140,1965)
+Gui.frmTrans.cmdClear.Caption("Clear")
+Gui.frmTrans.cmdClear.Event(Click,cmdClear_Click)
+Gui.frmTrans.cmdLog.Create(Button)
+Gui.frmTrans.cmdLog.Size(855,375)
+Gui.frmTrans.cmdLog.Position(5265,1965)
+Gui.frmTrans.cmdLog.Caption("Log File")
+Gui.frmTrans.cmdLog.Event(Click,cmdLog_Click)
+Gui.frmTrans.cmdLog.Enabled(False)
+Gui.frmTrans.lblStatus.Create(Label,"Transferring Data....",False,2880,255,0,2175,2025,True,0,"Arial",12,-2147483633,0)
+Gui.frmTrans.framePart.Create(Frame)
+Gui.frmTrans.framePart.Enabled(False)
+Gui.frmTrans.framePart.Visible(False)
+Gui.frmTrans.framePart.Size(5910,780)
+Gui.frmTrans.framePart.Position(180,2400)
+Gui.frmTrans.framePart.Caption("Current Part")
+Gui.frmTrans.txtPart.Create(TextBox,"",True,1815,300,0,60,360,False,0,"Arial",8,-2147483643,1)
+Gui.frmTrans.txtPart.Parent("framePart")
+Gui.frmTrans.txtDesc.Create(TextBox,"",True,3390,300,0,2445,360,False,0,"Arial",8,-2147483643,1)
+Gui.frmTrans.txtDesc.Parent("framePart")
+Gui.frmTrans.txtLoc.Create(TextBox,"",True,390,300,0,1965,360,False,0,"Arial",8,-2147483643,1)
+Gui.frmTrans.txtLoc.Parent("framePart")
+Gui.frmTrans.cmdPause.Create(Button)
+Gui.frmTrans.cmdPause.Enabled(False)
+Gui.frmTrans.cmdPause.Visible(False)
+Gui.frmTrans.cmdPause.Size(855,375)
+Gui.frmTrans.cmdPause.Position(210,3240)
+Gui.frmTrans.cmdPause.Caption("Pause")
+Gui.frmTrans.cmdPause.Event(Click,cmdPause_Click)
+Gui.frmTrans.chkResume.Create(CheckBox)
+Gui.frmTrans.chkResume.Size(1740,360)
+Gui.frmTrans.chkResume.Position(225,765)
+Gui.frmTrans.chkResume.Caption("Continue Last Run")
+Gui.frmTrans.chkResume.Event(Click,chkResume_Click)
+Program.Sub.ScreenSU.End
+
+Program.Sub.Preflight.Start
+v.Global.sFrom.Declare
+v.Global.sTo.Declare
+v.Global.sFile.Declare
+v.Global.sPID.Declare
+v.Global.sLog.Declare
+v.Global.sErLog.Declare
+v.Global.sLogFile.Declare
+v.Global.sExFile.Declare
+v.Global.sPause.Declare
+v.Global.iCount.Declare
+Program.Sub.Preflight.End
+
+Program.Sub.Main.Start
+'Robert Cole 06/23/2021
+'Added/ Changed:
+'1. Added ability to check if subcomponent was included in list and move instead of copy if it is.
+
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sIcon.Declare
+v.Local.sGsslogo.Declare
+v.Local.bExists.Declare
+v.Local.bRet.Declare
+v.Local.sPID.Declare
+v.Local.sFP.Declare
+
+v.Global.iCount.Set(0)
+
+f.Intrinsic.String.Build("{0}\gss2.ico",v.Caller.ArtDir,v.Local.sIcon)
+f.Intrinsic.String.Build("{0}\GAB_GSS_Logo_Green_Dash.png",v.Caller.ArtDir,v.Local.sGsslogo)
+gui.frmTrans..Icon(v.Local.sIcon)
+gui.frmTrans.picGSSLogo.Picture(v.Local.sGsslogo)
+
+f.ODBC.Connection!con.OpenCompanyConnection
+
+v.Global.sFrom.Set(v.Caller.CompanyCode)
+gui.frmTrans.lblCCC.Caption(v.Caller.CompanyCode)
+f.Intrinsic.Control.CallSub(LoadDdlTo)
+f.Intrinsic.String.Build("{0}\GAB_4350_Log.txt",v.Caller.LocalGssTempDir,v.Global.sLogFile)
+f.Intrinsic.File.Exists(v.Global.sLogFile,v.Local.bExists)
+f.Intrinsic.Control.If(v.Local.bExists)
+	gui.frmTrans.cmdLog.Enabled(True)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.CallSub(Directory_Check)
+f.Intrinsic.Control.CallSub(ddlTo_Change)
+
+f.ODBC.Connection!con.Close
+
+gui.frmTrans..Show
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.Main.End
+
+Program.Sub.LoadDdlTo.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sCCC.Declare
+v.Local.iCnt.Declare
+
+f.Global.General.GetCompanyCodes(v.Local.sCCC)
+f.Intrinsic.String.Split(v.Local.sCCC,"*!*",v.Local.sCCC)
+f.Intrinsic.Control.If(v.Local.sCCC.UBound,>,0)
+	f.Intrinsic.Control.For(v.Local.iCnt,0,v.Local.sCCC.UBound,1)
+		f.Intrinsic.Control.If(v.Local.sCCC(v.Local.iCnt),=,"***NORETURN***")
+			gui.frmTrans.ddlTo.AddItem("",v.Local.iCnt)
+		f.Intrinsic.Control.ElseIf(v.Local.sCCC(v.Local.iCnt),<>,v.Caller.CompanyCode)
+			gui.frmTrans.ddlTo.AddItem(v.Local.sCCC(v.Local.iCnt),v.Local.iCnt)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Next(v.Local.iCnt)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.LoadDdlTo.End
+
+Program.Sub.frmTrans_UnLoad.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+f.Intrinsic.Control.End 
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.frmTrans_UnLoad.End
+
+Program.Sub.cmdFileBrw_Click.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sSQL.Declare
+v.Local.sRet.Declare
+v.Local.sFile.Declare
+v.Local.sLine.Declare
+v.Local.i.Declare
+
+f.ODBC.Connection!conx.OpenCompanyConnection
+
+f.Intrinsic.Control.If(v.DataTable.dtImport.Exists,=,true)
+	f.Data.DataTable.Close("dtImport")
+f.Intrinsic.Control.EndIf
+
+f.ODBC.Connection!conx.OpenLocalRecordsetRO("REC","select count(STATUS) as REC_REM from GCG_6397_INV_ARCHIVE where STATUS <> '02'")
+
+f.Intrinsic.Control.If(v.ODBC.conx!REC.FieldVal!REC_REM,>,0)
+
+	f.Intrinsic.UI.Msgbox("There is an existing transfer in process.  Are you sure you want to delete it and start a new transfer?","WARNING!",4,v.Local.sRet)
+	
+	f.Intrinsic.Control.If(v.Local.sRET,=,v.Ambient.MsgBoxNo)
+
+		f.ODBC.conx!REC.Close
+		f.ODBC.Connection!conx.Close
+		f.Intrinsic.Control.ExitSub
+		
+	f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.UI.ShowOpenFileDialog("","","",v.Local.sFile)
+f.Intrinsic.Control.If(v.Local.sFile,<>,"***CANCEL***")
+
+	gui.frmTrans..Enabled(false)
+	
+	v.Global.sFile.Set(v.Local.sFile)
+	gui.frmTrans.txtFP.Text(v.Global.sFile)
+	
+	f.ODBC.Connection!conx.OpenLocalRecordsetRW("IMPT","select * from GCG_6397_INV_ARCHIVE")
+	
+	f.Intrinsic.Control.If(v.ODBC.conx!IMPT.EOF,=,false)
+	
+		f.ODBC.Connection!conx.Execute("DELETE from GCG_6397_INV_ARCHIVE")
+		
+	f.Intrinsic.Control.EndIf
+	
+	f.Data.DataTable.Create("dtImport",true)
+	f.Data.DataTable.AddColumn("dtImport","PART","string")
+	
+	f.Intrinsic.File.File2String(v.Local.sFile,v.Local.sRet)
+	f.Intrinsic.String.Split(v.Local.sRet,v.Ambient.NewLine,v.Local.sLine)
+	
+	f.Intrinsic.Control.For(v.Local.i,v.Local.sLine.LBound,v.Local.sLine.UBound,1)
+	
+		f.Intrinsic.Control.If(v.Local.sLine(v.Local.i),<>,"")
+
+			f.Data.DataTable.AddRow("dtImport","PART",v.Local.sLine(v.Local.i))
+			
+			f.ODBC.conx!IMPT.AddNew
+			f.ODBC.conx!IMPT.Set!PART(v.Local.sLine(v.Local.i))
+'			f.ODBC.conx!IMPT.Set!LOC("")
+			f.ODBC.conx!IMPT.Set!STATUS_INV(false)
+			f.ODBC.conx!IMPT.Set!STATUS_RT(false)
+			f.ODBC.conx!IMPT.Set!STATUS_BOM(false)
+			f.ODBC.conx!IMPT.Set!STATUS("00")
+			f.ODBC.conx!IMPT.Update
+		
+		f.Intrinsic.Control.EndIf
+
+	f.Intrinsic.Control.Next(v.Local.i)
+	
+	f.Data.DataTable.Close("dtImport")
+	f.ODBC.conx!IMPT.Close
+	
+	gui.frmTrans..Enabled(true)
+
+f.Intrinsic.Control.EndIf
+
+f.ODBC.conx!REC.Close
+f.ODBC.Connection!conx.Close
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.cmdFileBrw_Click.End
+
+Program.Sub.cmdRun_Click.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sDSN.Declare
+v.Local.sGSSPart.Declare
+v.Local.i.Declare
+v.Local.sSQL.Declare
+v.Local.iHeight.Declare
+v.Local.sMSG.Declare
+
+gui.frmTrans.frameInv.Enabled(false)
+gui.frmTrans.cmdRun.Enabled(false)
+gui.frmTrans.cmdClear.Enabled(false)
+gui.frmTrans.cmdLog.Enabled(false)
+
+f.Intrinsic.Control.If(v.Screen.frmTrans!ddlTo.Text,<>,"")
+
+	v.Global.sTo.Set(v.Screen.frmTrans!ddlTo.Text)
+	f.Intrinsic.Control.If(v.Screen.frmTrans!chkResume.Value,=,1)
+		f.Intrinsic.String.Build("{0} - {1} - {2}{3}Resuming Transfer From {4} To {5}{3}{3}",v.Caller.User,v.Ambient.Date,v.Ambient.Time,v.Ambient.NewLine,v.Global.sFrom,v.Global.sTo,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("{0} - {1} - {2}{3}Transfer From {4} To {5}{3}{3}",v.Caller.User,v.Ambient.Date,v.Ambient.Time,v.Ambient.NewLine,v.Global.sFrom,v.Global.sTo,v.Global.sLog)
+	f.Intrinsic.Control.EndIf
+	f.Intrinsic.String.Build("Global_{0}",v.Global.sTo,v.Local.sDSN)
+	f.Global.General.OverrideCompany(v.Global.sTo)
+	f.ODBC.Connection!conx.OpenCompanyConnection
+	f.Global.General.OverrideCompany(v.Global.sFrom)
+	f.ODBC.Connection!con.OpenCompanyConnection
+	
+	f.Intrinsic.Control.If(v.DataTable.dtImport.Exists,=,true)
+		f.Data.DataTable.Close("dtImport")
+	f.Intrinsic.Control.EndIf
+	
+	f.Data.DataTable.CreateFromSQL("dtImport","con","select * from GCG_6397_INV_ARCHIVE where STATUS <> '02'",true)
+	f.Data.DataTable.AddColumn("dtImport","DESCRIPTION","string")
+	
+	f.Data.Dictionary.CreateFromSQL("DESC","con","select PART, rtrim(DESCRIPTION) as DESCRIPTION from V_INVENTORY_ALL")
+	f.Data.Dictionary.SetDefaultReturn("DESC","")
+	f.Data.DataTable.FillFromDictionary("dtImport","DESC","PART","DESCRIPTION")
+	f.Data.Dictionary.Close("DESC")
+	
+	f.Intrinsic.Control.If(v.DataTable.dtImport.RowCount,>,0)
+
+		gui.frmTrans.lblStatus.Visible(True)
+		gui.frmTrans.framePart.Visible(true)
+		gui.frmTrans.cmdPause.Enabled(true)
+		gui.frmTrans.cmdPause.Visible(true)
+		f.Intrinsic.Math.Mult(v.Screen.frmTrans.Height,1.4,v.Local.iHeight)
+		gui.frmTrans..Size(v.Screen.frmTrans.Width,v.Local.iHeight)
+		
+		f.Intrinsic.Control.For(v.Local.i,0,v.DataTable.dtImport.RowCount--,1)
+			
+			gui.frmTrans.txtPart.Text(v.DataTable.dtImport(v.Local.i).PART!FieldValTrim)
+			gui.frmTrans.txtLoc.Text(v.DataTable.dtImport(v.Local.i).LOC!FieldValTrim)
+			gui.frmTrans.txtDesc.Text(v.DataTable.dtImport(v.Local.i).DESCRIPTION!FieldValTrim)
+			
+			f.Intrinsic.String.Build("select * from GCG_6397_INV_ARCHIVE where rtrim(PART) = '{0}' and (rtrim(LOC) = '{1}' or LOC IS NULL)",v.DataTable.dtImport(v.Local.i).PART!FieldValTrim,v.DataTable.dtImport(v.Local.i).LOC!FieldValTrim,v.Local.sSQL)
+			f.ODBC.Connection!con.OpenLocalRecordsetRW("ARCH",v.Local.sSQL)
+			
+			f.ODBC.Con!ARCH.Set!STATUS("01")
+			f.ODBC.Con!ARCH.Update
+			
+			'Inventory
+			f.Intrinsic.Control.If(v.Screen.frmTrans!txtInv.Text,<>,"",and,v.DataTable.dtImport(v.Local.i).STATUS_INV!FieldVal,=,false)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| Inventory-------------------------------------------------------------------------------------{4}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.Control.CallSub(MoveCopyInv)
+				f.ODBC.Con!ARCH.Set!STATUS_INV(true)
+				f.ODBC.Con!ARCH.Update
+				f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+				v.Global.sLog.Set("")
+			f.Intrinsic.Control.EndIf
+			
+			f.Intrinsic.Control.If(v.Global.sPause,=,"Y")
+				f.Intrinsic.Control.ExitFor(v.Local.i)
+				f.ODBC.Con!ARCH.Close
+			f.Intrinsic.Control.EndIf
+			
+			'Router
+			f.Intrinsic.Control.If(v.Screen.frmTrans!txtRtr.Text,<>,"",and,v.DataTable.dtImport(v.Local.i).STATUS_RT!FieldVal,=,false)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| Router----------------------------------------------------------------------------------------{4}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.Control.CallSub(MoveCopyRtr)
+				f.ODBC.Con!ARCH.Set!STATUS_RT(true)
+				f.ODBC.Con!ARCH.Update
+				f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+				v.Global.sLog.Set("")
+			f.Intrinsic.Control.EndIf
+			
+			f.Intrinsic.Control.If(v.Global.sPause,=,"Y")
+				f.Intrinsic.Control.ExitFor(v.Local.i)
+				f.ODBC.Con!ARCH.Close
+			f.Intrinsic.Control.EndIf
+			
+			'Bill of Material
+			f.Intrinsic.Control.If(v.Screen.frmTrans!txtBOM.Text,<>,"",and,v.DataTable.dtImport(v.Local.i).STATUS_BOM!FieldVal,=,false)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| Bill of Material------------------------------------------------------------------------------{4}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.Control.CallSub(MoveCopyBOM)
+				f.ODBC.Con!ARCH.Set!STATUS_BOM(true)
+				f.ODBC.Con!ARCH.Set!STATUS("02")
+				f.ODBC.Con!ARCH.Update
+				f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+				v.Global.sLog.Set("")
+			f.Intrinsic.Control.EndIf
+			
+			f.Intrinsic.Control.If(v.Global.sPause,=,"Y")
+				f.Intrinsic.Control.ExitFor(v.Local.i)
+				f.ODBC.Con!ARCH.Close
+			f.Intrinsic.Control.EndIf
+			
+			f.ODBC.Con!ARCH.Close
+			
+		f.Intrinsic.Control.Next(v.Local.i)
+	
+		f.ODBC.Connection!conx.Close
+		f.ODBC.Connection!con.Close
+		
+		f.Intrinsic.Control.If(v.Global.sPause,=,"Y")
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| Transfer Terminated Early.{4}{4}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Ambient.NewLine,v.Global.sLog)
+			
+			f.Intrinsic.Control.If(v.Global.iCount,>,0)
+				f.Intrinsic.String.Build("Transfer Paused. Check Log for more information.{0}{1} Parent record(s) of components in the transfer were not included.",v.Ambient.NewLine,v.Global.iCount,v.Local.sMSG)
+				f.Intrinsic.UI.Msgbox(v.Local.sMSG,"Paused")
+			f.Intrinsic.Control.Else
+				f.Intrinsic.UI.Msgbox("Transfer Paused. Check Log for more information.","Paused")
+			f.Intrinsic.Control.EndIf
+			
+		f.Intrinsic.Control.Else
+		
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| Transfer Complete.{4}{4}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Ambient.NewLine,v.Global.sLog)
+			
+			f.Intrinsic.Control.If(v.Global.iCount,>,0)
+				f.Intrinsic.String.Build("Transfer Complete. Check Log for more information.{0}{1} Parent record(s) of components in the transfer were not included.",v.Ambient.NewLine,v.Global.iCount,v.Local.sMSG)
+				f.Intrinsic.UI.Msgbox(v.Local.sMSG,"Complete")
+			f.Intrinsic.Control.Else
+				f.Intrinsic.UI.Msgbox("Transfer Complete. Check Log for more information.","Complete")
+			f.Intrinsic.Control.EndIf
+			
+		f.Intrinsic.Control.EndIf
+		f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+		
+		f.Intrinsic.Control.If(v.Screen.frmTrans!chkResume.Value,<>,1)
+		
+			f.Intrinsic.Control.CallSub(Move_File)
+			
+		f.Intrinsic.Control.EndIf
+		
+		gui.frmTrans.txtPart.Text("")
+		gui.frmTrans.txtDesc.Text("")
+		gui.frmTrans.txtFP.Text("")
+		gui.frmTrans.chkResume.Value(0)
+		
+		gui.frmTrans.cmdLog.Enabled(True)
+		gui.frmTrans.lblStatus.Visible(False)
+	
+	f.Intrinsic.Control.Else
+		
+		f.Intrinsic.UI.Msgbox("There are no remaining records from the previous upload.","Archive File Check")
+		gui.frmTrans.chkResume.Value(0)
+		f.Intrinsic.Control.CallSub(chkResume_Click)
+		
+	f.Intrinsic.Control.EndIf
+	
+f.Intrinsic.Control.Else
+
+	f.Intrinsic.UI.Msgbox("Select a To: Company Code first.","Company Code Check")
+	
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Math.Div(v.Screen.frmTrans.Height,1.4,v.Local.iHeight)
+gui.frmTrans..Size(v.Screen.frmTrans.Width,2715)
+gui.frmTrans.framePart.Visible(false)
+gui.frmTrans.framePart.Enabled(false)
+gui.frmTrans.frameInv.Enabled(true)
+'gui.frmTrans.cmdRun.Enabled(true)
+gui.frmTrans.cmdClear.Enabled(true)
+gui.frmTrans.cmdLog.Enabled(true)
+
+v.Global.sPause.Set("N")
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.cmdRun_Click.End
+
+Program.Sub.cmdClear_Click.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+gui.frmTrans.txtFP.Text("")
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.cmdClear_Click.End
+
+Program.Sub.cmdLog_Click.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.bExists.Declare
+v.Local.sMsg.Declare
+
+f.Intrinsic.File.Exists(v.Global.sLogFile,v.Local.bExists)
+f.Intrinsic.Control.If(v.Local.bExists)
+	f.Intrinsic.Task.ShellExec(0,"",v.Global.sLogFile,"","",1)
+f.Intrinsic.Control.Else
+	f.Intrinsic.String.Build("Log File ({0}) is missing.",v.Global.sLogFile,v.Local.sMsg)
+	f.Intrinsic.UI.Msgbox(v.Local.sMsg,"No Log File")
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.cmdLog_Click.End
+
+Program.Sub.MoveCopyInv.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sGSSPart.Declare
+v.Local.sSQL.Declare
+v.Local.sSQLInsert.Declare
+v.Local.sSQLDelete.Declare
+v.Local.sRet.Declare
+v.Local.iFrom.Declare
+v.Local.iTo.Declare
+v.Local.bArgsExists.Declare
+v.Local.bMove.Declare
+
+'f.Intrinsic.String.GSSPartString(v.Screen.frmTrans!txtPart,v.Local.sGSSPart)
+
+'f.Intrinsic.Variable.ArgExists("Move",v.Local.bArgsExists)
+'f.Intrinsic.Control.If(v.Local.bArgsExists)
+'	v.Local.bMove.Set(v.Args.Move)
+'	v.Local.sGSSPart.Set(v.Args.Part)
+'f.Intrinsic.Control.Else
+'	v.Local.bMove.Set(v.Screen.frmTrans!optInvMove.Value)
+'f.Intrinsic.Control.EndIf
+
+v.Local.bMove.Set(true)
+v.Local.sGSSPart.Set(v.Screen.frmTrans!txtPart.Value)
+
+'INVENTORY_MSTR
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM INVENTORY_MSTR WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MSTR: Part Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MSTR: Part Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.INVENTORY_MSTR SELECT * FROM GLOBAL{1}.INVENTORY_MSTR WHERE PART = '{2}' AND LOCATION = '{3}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MSTR: Part Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM INVENTORY_MSTR WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MSTR: Part Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MSTR: Part Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'INVENTORY_MST2
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM INVENTORY_MST2 WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST2: Part Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST2: Part Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.INVENTORY_MST2 SELECT * FROM GLOBAL{1}.INVENTORY_MST2 WHERE PART = '{2}' AND LOCATION = '{3}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST2: Part Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM INVENTORY_MST2 WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST2: Part Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST2: Part Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'INVENTORY_MST3
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM INVENTORY_MST3 WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST3: Part Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST3: Part Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.INVENTORY_MST3 SELECT * FROM GLOBAL{1}.INVENTORY_MST3 WHERE PART = '{2}' AND LOCATION = '{3}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST3: Part Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM INVENTORY_MST3 WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST3: Part Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_MST3: Part Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'INVENTORY_COST
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("UPDATE INVENTORY_COST SET CHG_DATE = '1900-01-01' WHERE CHG_DATE = '0001-01-01';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQL)
+f.ODBC.Connection!con.Execute(v.Local.sSQL)
+f.Intrinsic.String.Build("SELECT * FROM INVENTORY_COST WHERE PART = '{0}' AND LOCN = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_COST: Part Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_COST: Part Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.INVENTORY_COST SELECT * FROM GLOBAL{1}.INVENTORY_COST WHERE PART = '{2}' AND LOCN = '{3}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_COST: Part Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM INVENTORY_COST WHERE PART = '{0}' AND LOCN = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_COST: Part Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INVENTORY_COST: Part Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'INV_CROSS_REF
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM INV_CROSS_REF WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| INV_CROSS_REF: Part Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| INV_CROSS_REF: Part Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.INV_CROSS_REF SELECT * FROM GLOBAL{1}.INV_CROSS_REF WHERE PART = '{2}' AND LOCATION = '{3}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INV_CROSS_REF: Part Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM INV_CROSS_REF WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INV_CROSS_REF: Part Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| INV_CROSS_REF: Part Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'ITEM_MASTER
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM ITEM_MASTER WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| ITEM_MASTER: Part Number ({4}) was not found in {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| ITEM_MASTER: Part Number ({4}) already exist in {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.ITEM_MASTER SELECT * FROM GLOBAL{1}.ITEM_MASTER WHERE PART = '{2}' AND LOCATION = '{3}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ITEM_MASTER: Part Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM ITEM_MASTER WHERE PART = '{0}' AND LOCATION = '{1}';",v.Local.sGSSPart.Trim,v.Screen.frmTrans!txtLoc.Text,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ITEM_MASTER: Part Number ({4}) was Removed From {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ITEM_MASTER: Part Number ({4}) was Copied From {5} To {6}.{7}{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.MoveCopyInv.End
+
+Program.Sub.MoveCopyRtr.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sGSSPart.Declare
+v.Local.sSQL.Declare
+v.Local.sSQLInsert.Declare
+v.Local.sSQLDelete.Declare
+v.Local.sRet.Declare
+v.Local.iFrom.Declare
+v.Local.iTo.Declare
+v.Local.bArgsExists.Declare
+v.Local.bMove.Declare
+
+'f.Intrinsic.String.GSSPartString(v.Screen.frmTrans!txtRtr.Text,v.Screen.frmTrans!txtRtrRev.Text,v.Local.sGSSPart)
+
+'f.Intrinsic.Variable.ArgExists("Move",v.Local.bArgsExists)
+'f.Intrinsic.Control.If(v.Local.bArgsExists)
+'	v.Local.bMove.Set(v.Args.Move)
+'	v.Local.sGSSPart.Set(v.Args.Part)
+'f.Intrinsic.Control.Else
+'	v.Local.bMove.Set(v.Screen.frmTrans!optRtrMove.Value)
+'f.Intrinsic.Control.EndIf
+
+v.Local.sGSSPart.Set(v.Screen.frmTrans!txtPart.Value)
+v.Local.bMove.Set(true)
+
+'ROUTER_HEADER
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM ROUTER_HEADER WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'H';",v.Local.sGSSPart,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_HEADER: Router Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_HEADER: Router Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.ROUTER_HEADER SELECT * FROM GLOBAL{1}.ROUTER_HEADER WHERE ROUTER = '{2}' AND ROUTER_TYPE = 'H';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_HEADER: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM ROUTER_HEADER WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'H';",v.Local.sGSSPart,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_HEADER: Router Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_HEADER: Router Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'ROUTER_LINE
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM ROUTER_LINE WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'L';",v.Local.sGSSPart,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_LINE: Router Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_LINE: Router Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.ROUTER_LINE SELECT * FROM GLOBAL{1}.ROUTER_LINE WHERE ROUTER = '{2}' AND ROUTER_TYPE = 'L';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_LINE: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM ROUTER_LINE WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'L';",v.Local.sGSSPart,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_LINE: Router Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_LINE: Router Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'ROUTER_DESC
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM ROUTER_DESC WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'I';",v.Local.sGSSPart,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_DESC: Router Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_DESC: Router Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.ROUTER_DESC SELECT * FROM GLOBAL{1}.ROUTER_DESC WHERE ROUTER = '{2}' AND ROUTER_TYPE = 'I';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_DESC: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM ROUTER_DESC WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'I';",v.Local.sGSSPart,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_DESC: Router Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_DESC: Router Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'RTR_PRICE_1_4
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM RTR_PRICE_1_4 WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'Q' AND ROUTER_INSERT = '  ';",v.Local.sGSSPart,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_1_4: Router Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_1_4: Router Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.RTR_PRICE_1_4 SELECT * FROM GLOBAL{1}.RTR_PRICE_1_4 WHERE ROUTER = '{2}' AND ROUTER_TYPE = 'Q' AND ROUTER_INSERT = '  ';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_1_4: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM RTR_PRICE_1_4 WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'Q' AND ROUTER_INSERT = '  ';",v.Local.sGSSPart,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_1_4: Router Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_1_4: Router Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'RTR_PRICE_5_8
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM RTR_PRICE_5_8 WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'Q' AND ROUTER_INSERT = '01';",v.Local.sGSSPart,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_5_8: Router Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_5_8: Router Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.RTR_PRICE_5_8 SELECT * FROM GLOBAL{1}.RTR_PRICE_5_8 WHERE ROUTER = '{2}' AND ROUTER_TYPE = 'Q' AND ROUTER_INSERT = '01';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_5_8: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM RTR_PRICE_5_8 WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'Q' AND ROUTER_INSERT = '01';",v.Local.sGSSPart,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_5_8: Router Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_5_8: Router Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'RTR_PRICE_9_10
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM RTR_PRICE_9_10 WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'Q' AND ROUTER_INSERT = '02';",v.Local.sGSSPart,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_9_10: Router Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_9_10: Router Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.RTR_PRICE_9_10 SELECT * FROM GLOBAL{1}.RTR_PRICE_9_10 WHERE ROUTER = '{2}' AND ROUTER_TYPE = 'Q' AND ROUTER_INSERT = '02';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_9_10: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM RTR_PRICE_9_10 WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'Q' AND ROUTER_INSERT = '02';",v.Local.sGSSPart,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_9_10: Router Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| RTR_PRICE_9_10: Router Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Caller.GSSVersion,=,2016.2)
+	'ROUTER_SUPP
+	v.Local.iFrom.Set(0)
+	v.Local.iTo.Set(0)
+	f.Intrinsic.String.Build("SELECT * FROM ROUTER_SUPP WHERE RTR_NUM = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+	f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+		f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+			f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Else
+		f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+	f.Intrinsic.Control.EndIf
+
+	f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP: Router Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.Control.If(v.Local.iTo,>,0)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP: Router Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.ROUTER_SUPP SELECT * FROM GLOBAL{1}.ROUTER_SUPP WHERE RTR_NUM = '{2}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+			f.Intrinsic.Control.If(v.Local.bMove)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.String.Build("DELETE FROM ROUTER_SUPP WHERE RTR_NUM = '{0}';",v.Local.sGSSPart,v.Local.sSQLDelete)
+				f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP: Router Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.Control.Else
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP: Router Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.ElseIf(v.Caller.GSSVersion,>=,2017.1)
+	'ROUTER_SUPP_HDR
+	v.Local.iFrom.Set(0)
+	v.Local.iTo.Set(0)
+	f.Intrinsic.String.Build("SELECT * FROM ROUTER_SUPP_HDR WHERE RTR_NUM = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+	f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+		f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+			f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Else
+		f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+	f.Intrinsic.Control.EndIf
+
+	f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_HDR: Router Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.Control.If(v.Local.iTo,>,0)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_HDR: Router Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.ROUTER_SUPP_HDR SELECT * FROM GLOBAL{1}.ROUTER_SUPP_HDR WHERE RTR_NUM = '{2}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+			f.Intrinsic.Control.If(v.Local.bMove)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_HDR: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.String.Build("DELETE FROM ROUTER_SUPP_HDR WHERE RTR_NUM = '{0}';",v.Local.sGSSPart,v.Local.sSQLDelete)
+				f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_HDR: Router Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.Control.Else
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_HDR: Router Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+	'ROUTER_SUPP_LINE
+	v.Local.iFrom.Set(0)
+	v.Local.iTo.Set(0)
+	f.Intrinsic.String.Build("SELECT * FROM ROUTER_SUPP_LINE WHERE RTR_NUM = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+	f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+		f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+			f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.Else
+		f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+	f.Intrinsic.Control.EndIf
+
+	f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_LINE: Router Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.Control.If(v.Local.iTo,>,0)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_LINE: Router Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.ROUTER_SUPP_LINE SELECT * FROM GLOBAL{1}.ROUTER_SUPP_LINE WHERE RTR_NUM = '{2}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+			f.Intrinsic.Control.If(v.Local.bMove)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_LINE: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.String.Build("DELETE FROM ROUTER_SUPP_LINE WHERE RTR_NUM = '{0}';",v.Local.sGSSPart,v.Local.sSQLDelete)
+				f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_LINE: Router Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.Control.Else
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_SUPP_LINE: Router Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'ROUTER_XREF
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM ROUTER_XREF WHERE ROUTER = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_XREF: Router Number ({4}) was not found in {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_XREF: Router Number ({4}) already exist in {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.ROUTER_XREF SELECT * FROM GLOBAL{1}.ROUTER_XREF WHERE ROUTER = '{2}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		f.Intrinsic.Control.If(v.Local.bMove)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_XREF: Router Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM ROUTER_XREF WHERE ROUTER = '{0}';",v.Local.sGSSPart,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_XREF: Router Number ({4}) was Removed From {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| ROUTER_XREF: Router Number ({4}) was Copied From {5} To {6}.{7}{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'Find All M Lines and Loop through them calling MoveCopyInv for each part
+'f.Intrinsic.String.Build("SELECT ROUTER,ROUTER_TYPE,LINE_ROUTER,LMO,PART_WC_OUTSIDE FROM ROUTER_LINE WHERE ROUTER = '{0}' AND ROUTER_TYPE = 'L' AND LMO = 'M' ORDER BY LINE_ROUTER;",v.Local.sGSSPart,v.Local.sSQL)
+'f.ODBC.Connection!con.OpenRecordsetRO("rstRtr",v.Local.sSQL)
+'f.Intrinsic.Control.DoUntil(v.ODBC.con!rstRtr.EOF)
+'	f.Intrinsic.Control.CallSub(movecopyinv,"Move",v.Local.bMove,"Part",v.ODBC.con!rstRtr.FieldValTrim!PART_WC_OUTSIDE)
+'f.ODBC.con!rstRtr.MoveNext
+'f.Intrinsic.Control.Loop
+'f.ODBC.con!rstRtr.Close
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.MoveCopyRtr.End
+
+Program.Sub.MoveCopyBOM.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sGSSPart.Declare
+v.Local.sSQL.Declare
+v.Local.sSQLSub.Declare
+v.Local.sSQLInsert.Declare
+v.Local.sSQLDelete.Declare
+v.Local.sRet.Declare
+v.Local.sLogEX.Declare
+v.Local.iFrom.Declare
+v.Local.iTo.Declare
+v.Local.i.Declare
+v.Local.iRows.Declare
+v.Local.iEX.Declare
+
+'f.Intrinsic.String.GSSPartString(v.Screen.frmTrans!txtBOM.Text,v.Screen.frmTrans!txtBOMRev.Text,v.Local.sGSSPart)
+
+v.Local.sGSSPart.Set(v.Screen.frmTrans!txtPart.Value)
+
+'BOM_ENG
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM BOM_ENG WHERE PART = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Data.DataTable.Create("dtSub",true)
+f.Data.DataTable.AddColumn("dtSub","PART","string")
+f.Data.DataTable.AddColumn("dtSub","BOM","string")
+
+f.Intrinsic.String.Build("SELECT DISTINCT PART FROM BOM_MSTR WHERE PARENT = '{0}' and PART <> '' and SEQUENCE_BOM <> '0000';",v.Local.sGSSPart,v.Local.sSQLSub)
+f.Data.DataTable.CreateFromSQL("dtSubMain","con",v.Local.sSQLSub,true)
+f.Data.DataTable.AddColumn("dtSubMain","BOM","string")
+
+f.Data.Dictionary.CreateFromSQL("BOM","con","select distinct PARENT as PART, rtrim('Y') as BOM from BOM_MSTR")
+f.Data.Dictionary.SetDefaultReturn("BOM","")
+f.Data.DataTable.FillFromDictionary("dtSubMain","BOM","PART","BOM")
+f.Data.Dictionary.Close("BOM")
+
+f.Data.DataView.Create("dtSubMain","dvSubMain",22,"BOM='Y'","PART ASC")
+f.Data.DataView.ToDataTable("dtSubMain","dvSubMain","dtSubA",true)
+f.Data.DataView.Close("dtSubMain","dvSubMain")
+f.Data.DataTable.Close("dtSubMain")
+
+f.Data.DataTable.Merge("dtSubA","dtSub",true,2)
+v.Local.iRows.Set(v.DataTable.dtSubA.RowCount)
+
+f.Intrinsic.Control.DoUntil(v.Local.iRows,=,0)
+
+	f.Data.DataTable.Create("dtSubC",true)
+	f.Data.DataTable.AddColumn("dtSubC","PART","string")
+	f.Data.DataTable.AddColumn("dtSubC","BOM","string")
+
+	f.Intrinsic.Control.For(v.Local.i,0,v.DataTable.dtSubA.RowCount--,1)
+	
+		f.Intrinsic.String.Build("SELECT DISTINCT PART FROM BOM_MSTR WHERE PARENT = '{0}' and PART <> '' and SEQUENCE_BOM <> '0000';",v.DataTable.dtSubA(v.Local.i).PART!FieldValTrim,v.Local.sSQLSub)
+		f.Data.DataTable.CreateFromSQL("dtSubMain","con",v.Local.sSQLSub,true)
+		f.Data.DataTable.AddColumn("dtSubMain","BOM","string")
+		
+		f.Data.Dictionary.CreateFromSQL("BOM","con","select distinct PARENT as PART, rtrim('Y') as BOM from BOM_MSTR")
+		f.Data.Dictionary.SetDefaultReturn("BOM","")
+		f.Data.DataTable.FillFromDictionary("dtSubMain","BOM","PART","BOM")
+		f.Data.Dictionary.Close("BOM")
+		
+		f.Data.DataView.Create("dtSubMain","dvSubMain",22,"BOM='Y'","PART ASC")
+		f.Data.DataView.ToDataTable("dtSubMain","dvSubMain","dtSubB",true)
+		f.Data.DataView.Close("dtSubMain","dvSubMain")
+		f.Data.DataTable.Close("dtSubMain")
+		
+		f.Data.DataTable.Merge("dtSubB","dtSub",true,2)
+		f.Data.DataTable.Merge("dtSubB","dtSubC",true,2)
+		
+		f.Data.DataTable.Close("dtSubB")
+		
+	f.Intrinsic.Control.Next(v.Local.i)
+	
+	f.Data.DataTable.Close("dtSubA")
+	f.Data.DataTable.Create("dtSubA",true)
+	f.Data.DataTable.AddColumn("dtSubA","PART","string")
+	f.Data.DataTable.AddColumn("dtSubA","BOM","string")
+	f.Data.DataTable.Merge("dtSubC","dtSubA",true,2)
+	f.Data.DataTable.Close("dtSubC")
+	
+	v.Local.iRows.Set(v.DataTable.dtSubA.RowCount)
+	
+f.Intrinsic.Control.Loop
+
+f.Data.DataTable.Close("dtSubA")
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_ENG: Parent Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_ENG: Parent Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.BOM_ENG SELECT * FROM GLOBAL{1}.BOM_ENG WHERE PART = '{2}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)		
+'		f.Intrinsic.Control.If(v.Screen.frmTrans!optBOMMove.Value)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_ENG: Parent Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM BOM_ENG WHERE PART = '{0}';",v.Local.sGSSPart,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_ENG: Parent Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+'		f.Intrinsic.Control.Else
+'			f.Intrinsic.String.Build("{0}BOM_ENG: Parent Number ({4}) was Copied From {2} To {3}.{4}",v.Global.sLog,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+'		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'BOM_MSTR
+v.Local.iFrom.Set(0)
+v.Local.iTo.Set(0)
+f.Intrinsic.String.Build("SELECT * FROM BOM_MSTR WHERE PARENT = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+	f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+	f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+		f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.Else
+	f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+	f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_MSTR: Parent Number ({4}) was not found in {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+f.Intrinsic.Control.Else
+	f.Intrinsic.Control.If(v.Local.iTo,>,0)
+		f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_MSTR: Parent Number ({4}) already exist in {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+	f.Intrinsic.Control.Else
+	
+		f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.BOM_MSTR SELECT * FROM GLOBAL{1}.BOM_MSTR WHERE PARENT = '{2}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+		f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+		
+		f.Intrinsic.String.Build("SELECT distinct rtrim(PARENT) as PARENT FROM BOM_MSTR WHERE PART = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+		f.Data.DataTable.CreateFromSQL("dtBOMP","con",v.Local.sSQL,true)				
+		f.Data.DataTable.AddColumn("dtBOMP","ARCV_FLAG","string")
+		
+		f.Data.Dictionary.CreateFromSQL("ARCV","con","select rtrim(PART) as PART, rtrim('Y ') as ARCV_FLAG from GCG_6397_INV_ARCHIVE")
+		f.Data.Dictionary.SetDefaultReturn("ARCV","N")
+		f.Data.DataTable.FillFromDictionary("dtBOMP","ARCV","PARENT","ARCV_FLAG")
+		f.Data.Dictionary.Close("ARCV")
+		
+		f.Data.DataView.Create("dtBOMP","dvBOMP",22,"ARCV_FLAG = 'N'","")
+		f.Data.DataView.ToDataTable("dtBOMP","dvBOMP","dtBOMEX",true)
+		f.Data.DataView.Close("dtBOMP","dvBOMP")
+		f.Data.DataTable.Close("dtBOMP")
+		
+		f.Intrinsic.Control.If(v.DataTable.dtBOMEX.RowCount,>,0)
+		
+			f.Intrinsic.Control.For(v.Local.iEX,0,v.DataTable.dtBOMEX.RowCount--,1)
+				f.Intrinsic.String.Build("{0} {1}{2}| BOM_MSTR: Parent Number ({3}) for subcomponent ({4}) was not included in the archive from {5} To {6}.{7}",v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.DataTable.dtBOMEX(v.Local.iEX).PARENT!FieldValTrim,v.Local.sGSSPart,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.local.sLogEX)
+				f.Intrinsic.File.Append2File(v.Global.sExFile,v.Local.sLogEX)
+				f.Intrinsic.Math.Add(v.Global.iCount,1,v.Global.iCount)
+			f.Intrinsic.Control.Next(v.Local.iEX)
+		
+		f.Intrinsic.Control.EndIf
+		
+		f.Data.DataTable.Close("dtBOMEX")
+'		f.Intrinsic.Control.If(v.Screen.frmTrans!optBOMMove.Value)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_MSTR: Parent Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.String.Build("DELETE FROM BOM_MSTR WHERE PARENT = '{0}';",v.Local.sGSSPart,v.Local.sSQLDelete)
+			f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_MSTR: Parent Number ({4}) was Removed From {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+'		f.Intrinsic.Control.Else
+'			f.Intrinsic.String.Build("{0}BOM_MSTR: Parent Number ({4}) was Copied From {2} To {3}.{4}{4}",v.Global.sLog,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+'		f.Intrinsic.Control.EndIf
+	f.Intrinsic.Control.EndIf
+f.Intrinsic.Control.EndIf
+
+'Find All M and F Source Codes and Loop through them calling MoveCopyRtr & MoveCopyInv for each part
+'Then fine all P and J Source Codes and Loop through them calling MoveCopyInv for each part
+'f.Intrinsic.String.Build("SELECT PARENT,SEQUENCE_BOM,PART,SOURCE FROM BOM_MSTR WHERE PARENT = '{0}' AND SEQUENCE_BOM <> '0000' ORDER BY SEQUENCE_BOM;",v.Local.sGSSPart,v.Local.sSQL)
+'f.ODBC.Connection!con.OpenRecordsetRO("rstBom",v.Local.sSQL)
+'f.Intrinsic.Control.DoUntil(v.ODBC.con!rstBom.EOF)
+'	f.Intrinsic.Control.SelectCase(v.ODBC.con!rstBom.FieldValTrim!SOURCE)
+'		f.Intrinsic.Control.CaseAny("M","F")
+''			f.Intrinsic.Control.CallSub(movecopyrtr,"Move",v.Screen.frmTrans!optBOMMove.Value,"Part",v.ODBC.con!rstBom.FieldValTrim!PART)
+'			f.Intrinsic.Control.CallSub(movecopyrtr,"Part",v.ODBC.con!rstBom.FieldValTrim!PART)
+'		f.Intrinsic.Control.CaseAny("P","J")
+''			f.Intrinsic.Control.CallSub(movecopyinv,"Move",v.Screen.frmTrans!optBOMMove.Value,"Part",v.ODBC.con!rstBom.FieldValTrim!PART)
+'			f.Intrinsic.Control.CallSub(movecopyinv,"Part",v.ODBC.con!rstBom.FieldValTrim!PART)
+'	f.Intrinsic.Control.EndSelect
+'f.ODBC.con!rstBom.MoveNext
+'f.Intrinsic.Control.Loop
+'f.ODBC.con!rstBom.Close
+
+f.Intrinsic.Control.CallSub(MoveCopySubBOM)
+
+f.Data.DataTable.Close("dtSub")
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.MoveCopyBOM.End
+
+Program.Sub.MoveCopySubBOM.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sGSSPart.Declare
+v.Local.sSQL.Declare
+v.Local.sSQLSub.Declare
+v.Local.sSQLInsert.Declare
+v.Local.sSQLDelete.Declare
+v.Local.sRet.Declare
+v.Local.sLogEX.Declare
+v.Local.iFrom.Declare
+v.Local.iTo.Declare
+v.Local.i.Declare
+v.Local.iEX.Declare
+
+f.Intrinsic.Control.If(v.DataTable.dtSub.RowCount,>,0)
+
+	f.Intrinsic.Control.For(v.Local.i,0,v.DataTable.dtSub.RowCount--,1)
+	
+		v.Local.sGSSPart.Set(v.DataTable.dtSub(v.Local.i).PART!FieldValTrim)
+		
+		'BOM_ENG
+		v.Local.iFrom.Set(0)
+		v.Local.iTo.Set(0)
+		f.Intrinsic.String.Build("SELECT * FROM BOM_ENG WHERE PART = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+		f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+		f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+			f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+			f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+				f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.Else
+			f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+		f.Intrinsic.Control.EndIf
+		
+		f.Intrinsic.String.Build("select * from GCG_6397_INV_ARCHIVE where rtrim(PART) = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+		f.ODBC.Connection!con.OpenLocalRecordsetRO("EXIST",v.Local.sSQL)
+		
+		f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_ENG: Subcomponent Parent Number ({4}) was not found in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.Control.If(v.Local.iTo,>,0)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_ENG: Subcomponent Parent Number ({4}) already exist in {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.Control.Else
+				f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.BOM_ENG SELECT * FROM GLOBAL{1}.BOM_ENG WHERE PART = '{2}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+				f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)		
+				f.Intrinsic.Control.If(v.ODBC.con!EXIST.EOF,=,false)
+					f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_ENG: Parent Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+					f.Intrinsic.String.Build("DELETE FROM BOM_ENG WHERE PART = '{0}';",v.Local.sGSSPart,v.Local.sSQLDelete)
+					f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+					f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_ENG: Parent Number ({4}) was Removed From {5}.{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.Control.Else
+					f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_ENG: Subcomponent Parent Number ({4}) was Copied From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.Control.EndIf
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.EndIf
+		
+		'BOM_MSTR
+		v.Local.iFrom.Set(0)
+		v.Local.iTo.Set(0)
+		f.Intrinsic.String.Build("SELECT * FROM BOM_MSTR WHERE PARENT = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+		f.ODBC.Connection!con.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+		f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+			f.ODBC.Connection!conx.ExecuteAndReturn(v.Local.sSQL,v.Local.sRet)
+			f.Intrinsic.Control.If(v.Local.sRet,<>,"")
+				f.Intrinsic.Math.Add(v.Local.iTo,1,v.Local.iTo)
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.Else
+			f.Intrinsic.Math.Add(v.Local.iFrom,1,v.Local.iFrom)
+		f.Intrinsic.Control.EndIf
+		
+		f.Intrinsic.Control.If(v.Local.iFrom,>,0)
+			f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_MSTR: Subcomponent Parent Number ({4}) was not found in {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+		f.Intrinsic.Control.Else
+			f.Intrinsic.Control.If(v.Local.iTo,>,0)
+				f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_MSTR: Subcomponent Parent Number ({4}) already exist in {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+			f.Intrinsic.Control.Else
+				f.Intrinsic.String.Build("INSERT INTO GLOBAL{0}.BOM_MSTR SELECT * FROM GLOBAL{1}.BOM_MSTR WHERE PARENT = '{2}';",v.Global.sTo,v.Global.sFrom,v.Local.sGSSPart,v.Local.sSQLInsert)
+				f.ODBC.Connection!con.Execute(v.Local.sSQLInsert)
+
+				f.Intrinsic.String.Build("SELECT distinct rtrim(PARENT) as PARENT FROM BOM_MSTR WHERE PART = '{0}';",v.Local.sGSSPart,v.Local.sSQL)
+				f.Data.DataTable.CreateFromSQL("dtBOMP","con",v.Local.sSQL,true)				
+				f.Data.DataTable.AddColumn("dtBOMP","ARCV_FLAG","string")
+				
+				f.Data.Dictionary.CreateFromSQL("ARCV","con","select rtrim(PART) as PART, rtrim('Y ') as ARCV_FLAG from GCG_6397_INV_ARCHIVE")
+				f.Data.Dictionary.SetDefaultReturn("ARCV","N")
+				f.Data.DataTable.FillFromDictionary("dtBOMP","ARCV","PARENT","ARCV_FLAG")
+				f.Data.Dictionary.Close("ARCV")
+				
+				f.Data.DataView.Create("dtBOMP","dvBOMP",22,"ARCV_FLAG = 'N'","")
+				f.Data.DataView.ToDataTable("dtBOMP","dvBOMP","dtBOMEX",true)
+				f.Data.DataView.Close("dtBOMP","dvBOMP")
+				f.Data.DataTable.Close("dtBOMP")
+				
+				f.Intrinsic.Control.If(v.DataTable.dtBOMEX.RowCount,>,0)
+				
+					f.Intrinsic.Control.For(v.Local.iEX,0,v.DataTable.dtBOMEX.RowCount--,1)
+						f.Intrinsic.String.Build("{0} {1}{2}| BOM_MSTR: Parent Number ({3}) for subcomponent ({4}) was not included in the archive from {5} To {6}.{7}",v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.DataTable.dtBOMEX(v.Local.iEX).PARENT!FieldValTrim,v.Local.sGSSPart,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.local.sLogEX)
+						f.Intrinsic.File.Append2File(v.Global.sExFile,v.Local.sLogEX)
+						f.Intrinsic.Math.Add(v.Global.iCount,1,v.Global.iCount)
+					f.Intrinsic.Control.Next(v.Local.iEX)
+				
+				f.Intrinsic.Control.EndIf
+				
+				f.Data.DataTable.Close("dtBOMEX")
+				
+				f.Intrinsic.Control.If(v.ODBC.con!EXIST.EOF,=,false)
+					f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_MSTR: Parent Number ({4}) was Moved From {5} To {6}.{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+					f.Intrinsic.String.Build("DELETE FROM BOM_MSTR WHERE PARENT = '{0}';",v.Local.sGSSPart,v.Local.sSQLDelete)
+					f.ODBC.Connection!con.Execute(v.Local.sSQLDelete)
+					f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_MSTR: Parent Number ({4}) was Removed From {5}.{6}{6}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.Control.Else
+					f.Intrinsic.String.Build("{0}{1} {2}{3}| BOM_MSTR: Subcomponent Parent Number ({4}) was Copied From {5} To {6}.{7}{7}",v.Global.sLog,v.Ambient.Date,v.Ambient.Time,v.Ambient.Tab,v.Local.sGSSPart.Trim,v.Global.sFrom,v.Global.sTo,v.Ambient.NewLine,v.Global.sLog)
+				f.Intrinsic.Control.EndIf
+			f.Intrinsic.Control.EndIf
+		f.Intrinsic.Control.EndIf
+		
+		f.ODBC.Con!EXIST.Close
+	
+	f.Intrinsic.Control.Next(v.Local.i)
+
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.MoveCopySubBOM.End
+
+Program.Sub.Directory_Check.Start
+'CHECK FOR AND CREATE ANY DIRECTORIES NEEDED FOR 6397
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.bRet.Declare
+v.Local.sPID.Declare
+v.Local.sFP.Declare
+v.Local.sLog.Declare
+v.Local.sLogFile.Declare
+
+f.Intrinsic.String.Build("{0}\CUSTOM\6397",v.Caller.GlobalDir,v.Local.sFP)
+f.Intrinsic.File.DirExists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.File.CreateDir(v.Local.sFP)
+f.Intrinsic.Control.EndIf
+v.Local.sFP.Set("")
+
+f.Intrinsic.String.Build("{0}\CUSTOM\6397\IMPORT",v.Caller.GlobalDir,v.Local.sFP)
+f.Intrinsic.File.DirExists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.File.CreateDir(v.Local.sFP)
+f.Intrinsic.Control.EndIf
+v.Local.sFP.Set("")
+
+f.Intrinsic.String.Build("{0}\CUSTOM\6397\PROCESSED",v.Caller.GlobalDir,v.Local.sFP)
+f.Intrinsic.File.DirExists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.File.CreateDir(v.Local.sFP)
+f.Intrinsic.Control.EndIf
+v.Local.sFP.Set("")
+
+f.Intrinsic.String.Build("{0}\CUSTOM\6397\LOG",v.Caller.GlobalDir,v.Local.sFP)
+f.Intrinsic.File.DirExists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.File.CreateDir(v.Local.sFP)
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.String.Build("{0}\6397{1}.log",v.Local.sFP,v.Global.sFrom,v.Local.sFP)
+f.Intrinsic.File.Exists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.String.Build("{0} {1} - INITIALIZATION OF LOG FILE.{2}",v.Ambient.Date,v.Ambient.Time,v.Ambient.NewLine,v.Local.sLog)
+	f.Intrinsic.File.String2File(v.Local.sFP,v.Local.sLog)
+f.Intrinsic.Control.EndIf
+
+v.Global.sLogFile.Set(v.Local.sFP)
+
+f.Intrinsic.String.Build("{0}\CUSTOM\6397\LOG\6397_EXCEPTION_{1}.log",v.Caller.GlobalDir,v.Global.sFrom,v.Local.sFP)
+f.Intrinsic.File.Exists(v.Local.sFP,v.Local.bRet)
+f.Intrinsic.Control.If(v.Local.bRet,=,false)
+	f.Intrinsic.String.Build("{0} {1} - INITIALIZATION OF EXCEPTION LOG FILE.{2}",v.Ambient.Date,v.Ambient.Time,v.Ambient.NewLine,v.Local.sLog)
+	f.Intrinsic.File.String2File(v.Local.sFP,v.Local.sLog)
+f.Intrinsic.Control.EndIf
+
+v.Global.sExFile.Set(v.Local.sFP)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.Directory_Check.End
+
+Program.Sub.ddlTo_Change.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+f.Intrinsic.Control.If(v.Screen.frmTrans!ddlTo.Value,<>,"")
+
+	gui.frmTrans.frameInv.Enabled(true)
+'	gui.frmTrans.cmdRun.Enabled(true)
+	gui.frmTrans.cmdClear.Enabled(true)
+	gui.frmTrans.cmdLog.Enabled(true)
+	gui.frmTrans.chkResume.Enabled(true)
+	
+f.Intrinsic.Control.Else
+
+	gui.frmTrans.frameInv.Enabled(false)
+'	gui.frmTrans.cmdRun.Enabled(false)
+	gui.frmTrans.cmdClear.Enabled(false)
+	gui.frmTrans.cmdLog.Enabled(false)
+	gui.frmTrans.chkResume.Enabled(false)
+	
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.ddlTo_Change.End
+
+Program.Sub.txtFP_Change.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+f.Intrinsic.Control.If(v.Screen.frmTrans!txtFP.Value,<>,"",or,v.Screen.frmTrans!chkResume.Value,=,1)
+
+	gui.frmTrans.cmdRun.Enabled(true)
+
+f.Intrinsic.Control.Else
+
+	gui.frmTrans.cmdRun.Enabled(false)
+
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.If(v.Screen.frmTrans!chkResume.Value,=,1)
+
+	gui.frmTrans.frameInv.Enabled(false)
+	
+f.Intrinsic.Control.Else
+	
+	gui.frmTrans.frameInv.Enabled(true)
+
+f.Intrinsic.Control.EndIf
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.txtFP_Change.End
+
+Program.Sub.chkResume_Click.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+f.Intrinsic.Control.CallSub(txtFP_Change)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.chkResume_Click.End
+
+Program.Sub.cmdPause_Click.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Global.sPause.Set("Y")
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.cmdPause_Click.End
+
+Program.Sub.Move_File.Start
+f.Intrinsic.Control.Try
+v.Local.sError.Declare
+
+v.Local.sFP.Declare
+v.Local.sFPRet.Declare
+v.Local.sFN.Declare
+v.Local.sRet.Declare
+
+f.Intrinsic.String.Split(v.Global.sFile,"\",v.Local.sFPRet)
+f.Intrinsic.String.Build("{0}_{1}_{2}",v.Ambient.Date,v.Ambient.Time,v.Local.sFPRet(v.Local.sFPRet.UBound),v.Local.sFN)
+f.Intrinsic.File.MakeFilenameFriendly(v.Local.sFN,v.Local.sFN)
+f.Intrinsic.String.Build("{0}\CUSTOM\6397\PROCESSED\{1}",v.Caller.GlobalDir,v.Local.sFN,v.Local.sFP)
+f.Intrinsic.File.MoveFile(v.Global.sFile,v.Local.sFP,v.Local.sRet)
+
+f.Intrinsic.Control.Catch
+	f.Intrinsic.String.Build("Project: {0}{1}{1}Subroutine: {2}{1}Error Occurred {3} with description {4}{1}{1}GAB Version: {5}",v.Ambient.ScriptPath,v.Ambient.Newline,v.Ambient.CurrentSubroutine,v.Ambient.ErrorNumber,v.Ambient.ErrorDescription,v.Ambient.GABVersion,v.Local.sError)
+	f.Intrinsic.String.Build("{0}{1} {2} - {3}",v.Ambient.NewLine,v.Ambient.Date,v.Ambient.Time,v.Local.sError,v.Global.sLog)
+	f.Intrinsic.File.Append2File(v.Global.sLogFile,v.Global.sLog)
+f.Intrinsic.Control.EndTry
+Program.Sub.Move_File.End
