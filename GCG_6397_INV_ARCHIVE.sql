@@ -1,0 +1,13 @@
+-- Database: GLOBALPLA Metadata version: 2 Exported: Jun 25, 2021
+-- Begin Tables
+SET LEGACYTYPESALLOWED = ON;
+-- Begin Multi-Line Statement
+CREATE TABLE "GCG_6397_INV_ARCHIVE" USING 'GCG_6397_INV_ARCHIVE.mkd' PAGESIZE=4096 (
+ "PART" CHAR(20) NOT NULL,
+ "LOC" CHAR(3),
+ "STATUS_INV" BIT NOT NULL,
+ "STATUS_RT" BIT NOT NULL,
+ "STATUS_BOM" BIT NOT NULL,
+ "STATUS" CHAR(2) );
+-- End Multi-Line Statement
+-- End Tables
